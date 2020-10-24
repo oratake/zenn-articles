@@ -1,0 +1,23 @@
+{
+  "name": "zenn-articles",
+  "version": "1.0.0",
+  "description": "zennの記事用リポジトリ。 https://zenn.dev/oratake",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/oratake/zenn-articles.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/oratake/zenn-articles/issues"
+  },
+  "homepage": "https://github.com/oratake/zenn-articles#readme",
+  "dependencies": {
+    "zenn-cli": "^0.1.51"
+  }
+}
