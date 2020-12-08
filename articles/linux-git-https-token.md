@@ -45,7 +45,9 @@ $ sudo make
 
 ## git configで設定
 
+```
 $ git config --global credential.helper /usr/lib/git-core/git-credential-gnome-keyring
+```
 
 ## 使えるか確認
 
