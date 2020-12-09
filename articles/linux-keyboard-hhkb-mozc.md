@@ -15,7 +15,7 @@ ArchLinuxでHappy Hack Keyboard Lite2 for Mac (JIS)を使おうとした話
 - HHKB Lite2 for Mac
 
 ThinkPad本体のCapsLockはCtrlと入れ替え済
-このワンライナーを.zshrcで登録している
+このワンライナーを.zshrcで `nocaps` みたいなエイリアスとして登録している
 
 ```
 $ setxkbmap -model jp106 -layout jp -option ctrl:nocaps
