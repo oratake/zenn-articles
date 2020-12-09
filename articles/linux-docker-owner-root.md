@@ -3,7 +3,7 @@ title: "LinuxでDocker使うと、Docker側で生成したファイルがrootに
 emoji: "🐳"
 type: "tech" # tech: 技術記事 / idea: アイデア
 topics: ["Linux","Docker"]
-published: false
+published: true
 ---
 
 英語読んで書いてあることやっただけ。
@@ -30,7 +30,7 @@ Docker v19.03からは rootlessモード というものが用意されたよう
 
 この違いとしては、 `userns-remap` デーモン自体はrootで動いていたのに対し、
 Rootlessモードではすべてがroot権限なしで動くようになっている様子。
-(ただしまだ動かないものもあるらしい)
+(一部機能はまだ動かないものもあるらしい)
 
 ## 環境
 
@@ -44,16 +44,15 @@ https://docs.docker.com/engine/security/rootless/
 一応、Dockerの公式には乗ってるらしいが、ArchLinuxのユーザリポジトリ(AUR)に方法が載っていたので、
 AURで楽しようと思う。
 
-20/07/06 ぐらいの話なので、AURのページから下記の情報がまだ使えるか確認しながらどうぞ。
-
-https://aur.archlinux.org/packages/docker-rootless/#pinned-724406
+20/12/09 ぐらいの話なので、AURのページから下記の情報がまだ使えるか確認しながらどうぞ。
+https://aur.archlinux.org/packages/docker-rootless-bin/
 
 ### docker-rootlessをAURからインストール
 
 上記に従ってまず AUR から docker-rootless をいれてやる
 
 ```
-$ yay -S docker-rootless
+$ yay -S docker-rootless-bin
 ```
 
 終わったらこの表示が出る。これは先程のAURのコメントの通りなので、これに従ってやっていく
@@ -108,7 +107,7 @@ kernel.unprivileged_userns_clone=1
 ユーザ名:231072:65536
 ```
 ※231072については適当に絶対に被らなさそうな開始idを指定すれば良いので、114514とか適当に
-subuid、subgidともに100000とかでも良さそうだった
+subuid、subgidともに100000から65536個確保、とかでも良さそうだった
 
 ### ユーザのDocker起動,自動起動有効
 
@@ -124,17 +123,20 @@ $ systemctl --user enable docker
 enableした場合、設定が最後まで終わったあと再起動してdockerが起動されているか確認すると良さそう
 最後にもっかいstatusして起動できてるか確認しておくとなおよし
 
-systemctlでの起動の際は、root側と `--user` 側でそれぞれstartしてenableしておく必要あり
+~~systemctlでの起動の際は、root側と `--user` 側でそれぞれstartしてenableしておく必要あり
 rootのdockerが起動していないと、userのdockerだけでは起動がfailedする
 あと、起動しない理由としてユーザがdockerグループから抜けていたというのもあったが
 そもそもそれをしたくないのでrootless dockerにしたはずなんだが、みたいな話になってきてなんかアレ
 https://stackoverflow.com/questions/60490529/docker-rootless-on-ubuntu-overlay2-failed-driver-not-supported
-とりあえずコレやってもfailedしてそう
+とりあえずコレやってもfailedしてそう~~
+
+追記: 20/12/09
+rootlessモードなdockerをstartするだけでいけた。なんでや。
 
 ### Docker Host
 
 お使いのshellでPATHを通す
-私は `zsh` なので `.zshrc` に
+小生は `zsh` なので `.zshrc` に
 
 ```
 export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
