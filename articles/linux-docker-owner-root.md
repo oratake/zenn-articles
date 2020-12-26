@@ -153,3 +153,79 @@ rootless な Docker は、sudo で起動するものとは別にコンテナな�
 つまり同じプロジェクトでもdocker-compose up -dすると新しくbuildが走っちゃうよ、ということである
 新幹線でテザリングしてたときにやらかしてコンテナビルド走って慌てて消した
 即日通信制限がかかり、その月はひもじい思いをしたので気をつけよう！
+
+
+## 追記
+
+dockerのファイル保存先をかえれば、root側のfileとかち合わないのでは
+
+dockerをbuildしてる最中にこんな感じのが出てくる
+
+```
+Status: Downloaded newer image for php:8-fpm
+ ---> edc6bf79d9ba
+Step 2/2 : RUN apt update && docker-php-ext-install pdo pdo_mysql
+ ---> Running in 5616e0ab9a5a
+ERROR: Service 'php' failed to build : /run/containerd/s/60ceecf888f9382eafe6d7308496a508a83e2bd819ef77fb285590aaf9a7985b: mkdir /run/containerd/s: permission denied: unknown
+```
+
+これひょっとしてrootとrootlessのdockerの環境が分けられてないかな？という気がしたので
+rootlessなdockerは別なとこを指定してみる
+
+試しにそれぞれのstatusを確認
+
+rootless
+```
+$ systemctl --user status docker
+● docker.service - Docker Application Container Engine
+     Loaded: loaded (/usr/lib/systemd/system/docker.service; disabled; vendor preset: >
+     Active: inactive (dead)
+TriggeredBy: ● docker.socket
+```
+
+root
+```
+$ sudo systemctl status docker
+● docker.service - Docker Application Container Engine (Rootless)
+     Loaded: loaded (/usr/lib/systemd/user/docker.service; disabled; vendor preset:
+     Active: inactive (dead)
+       Docs: https://docs.docker.com
+```
+
+このそれぞれのdocker.serviceに、起動時の設定などをぶちこんでおける
+
+rootless dockerのdocker.service
+こいつのExecStartを変更していく
+```
+[Unit]
+Description=Docker Application Container Engine (Rootless)
+Documentation=https://docs.docker.com
+
+[Service]
+Environment=PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=DOCKERD_FLAGS="--experimental"
+ExecStart=/usr/bin/dockerd-rootless.sh $DOCKERD_FLAGS
+ExecReload=/bin/kill -s HUP $MAINPID
+TimeoutSec=0
+RestartSec=2
+Restart=always
+StartLimitBurst=3
+StartLimitInterval=60s
+LimitNOFILE=infinity
+LimitNPROC=infinity
+LimitCORE=infinity
+TasksMax=infinity
+Delegate=yes
+Type=simple
+
+[Install]
+WantedBy=default.target
+```
+
+今回はユーザ向けのdockerのディレクトリを ~/.docker にしてみた
+
+```
+ExecStart=/usr/bin/dockerd-rootless.sh $DOCKERD_FLAGS --data-root /home/<USERの名前>/.docker
+```
+
+参考: https://xvideos.hatenablog.com/entry/move_docker_location
