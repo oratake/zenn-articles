@@ -45,14 +45,23 @@ https://docs.docker.com/engine/security/rootless/
 AURで楽しようと思う。
 
 20/12/09 ぐらいの話なので、AURのページから下記の情報がまだ使えるか確認しながらどうぞ。
-https://aur.archlinux.org/packages/docker-rootless-bin/
+~~https://aur.archlinux.org/packages/docker-rootless/~~
+
+21/01/03 上記見れなくなってた。以下で入りそう。なんか最近このあたりゴタゴタしてるので公式とか見たほうがいいかも
+https://aur.archlinux.org/packages/docker-rootless-extras-bin/
 
 ### docker-rootlessをAURからインストール
 
-上記に従ってまず AUR から docker-rootless をいれてやる
+追記 21/01/03
+公式を確認すると以下のインストールが推奨されていたので追記
+```
+$ sudo pacman -S fuse-overlayfs
+```
+
+上記AURに従ってまず AUR から docker-rootless をいれてやる
 
 ```
-$ yay -S docker-rootless-bin
+$ yay -S docker-rootless
 ```
 
 終わったらこの表示が出る。これは先程のAURのコメントの通りなので、これに従ってやっていく
@@ -157,9 +166,9 @@ rootless な Docker は、sudo で起動するものとは別にコンテナな�
 
 ## 追記
 
-dockerのファイル保存先をかえれば、root側のfileとかち合わないのでは
+dockerのファイル保存先をかえれば、root側のdockerと設定関係のファイルがかち合わないのでは？とおもった
 
-dockerをbuildしてる最中にこんな感じのが出てくる
+コンテナをbuildしてる最中にこんな感じのが出てくる
 
 ```
 Status: Downloaded newer image for php:8-fpm
