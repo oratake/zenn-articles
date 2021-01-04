@@ -238,3 +238,27 @@ ExecStart=/usr/bin/dockerd-rootless.sh $DOCKERD_FLAGS --data-root /home/<USERの
 ```
 
 参考: https://xvideos.hatenablog.com/entry/move_docker_location
+
+## bindが1024以下の特権ポートを使えない
+
+更に追記。  
+普通にやるとnginxとかをビルドしたときに1024以下のポートは使えんぞって怒られる  
+
+```
+ERROR: for hoge_nginx  Cannot start service hoge_nginx: driver failed programming external connectivity on endpoint hoge_nginx (<HASH_IS_HERE_114514>): Error starting userland proxy: error while calling PortManager.AddPort(): cannot expose privileged port 443, you might need to add "net.ipv4.ip_unprivileged_port_start=0" (currently 1024) to /etc/sysctl.conf, or set CAP_NET_BIND_SERVICE on rootlesskit binary, or choose a larger port number (>= 1024): listen tcp 0.0.0.0:443: bind: permission denied
+ERROR: Encountered errors while bringing up the project.
+```
+
+怒られるけど使いたいときはあるので許可していく
+
+Docker デーモンをルート以外のユーザで実行（Rootless モード） - docker-docs-ja  
+https://docs.docker.jp/engine/security/rootless.html#rootless-exposing-privileged-ports
+
+エラー文で勧められた通りにrootlesskitバイナリに一部権限を渡していきます(setcap)  
+上記URLの通りに作業するが、Archのrootlesskitの場所はdocker大本営の話とはちょっと違っている？っぽいので
+```
+$ which rootlesskit
+```
+に置き換えておいてみた。
+
+`/etc/sysctl.d/` に書き足すところも、どこぞの設定に習い `/etc/sysctl.d/99-docker-rootless.conf` に置いているので、そこに追記する
