@@ -20,33 +20,30 @@ Linux (当方Arch) で `git push` でgithubなどに上げる際、
 
 gitくんでは credential helper なるものを使用してやると、わからせられるようである
 
-今回件のhelperには GNOME Keyringをつかってみることにする
+今回件のhelperには ~~GNOME Keyring~~ libsecret をつかってみることにする
+
+追記: コメントで情報を頂いたが、Archのwiki原文では libsecretを用いるよう書いてあるため、そちらに合わせて修正する
 
 # 手順
 
-https://wiki.archlinux.jp/index.php/GNOME_Keyring#GNOME_Keyring_.E3.81.A8_Git
+~~https://wiki.archlinux.jp/index.php/GNOME_Keyring#GNOME_Keyring_.E3.81.A8_Git~~
+
+https://wiki.archlinux.org/index.php/GNOME/Keyring#Git_integration
 
 上記手順に沿っていく
 
 ## GNOME Keyringをインストール
 
-公式リポジトリから GNOME Keyringをインストール
+公式リポジトリからlibsecretとGNOME Keyringをインストール
 
 ```
-$ sudo pacman -S libgnome-keyring
-```
-
-## helperをmake
-
-```
-$ cd /usr/share/git/credential/gnome-keyring
-$ sudo make
+$ sudo pacman -S libsecret gnome-keyring
 ```
 
 ## git configで設定
 
 ```
-$ git config --global credential.helper /usr/lib/git-core/git-credential-gnome-keyring
+$ git config --global credential.helper /usr/lib/git-core/git-credential-libsecret
 ```
 
 ## 使えるか確認
