@@ -83,6 +83,11 @@ tldrに書いた通り。
 
 https://man.archlinux.org/man/libinput.4
 
+あとXorgを再起動させたらトラボでスクロールができるようになっているはず
+
 ## 参考
 
 - https://wiki.archlinux.jp/index.php/Libinput
+
+- https://wiki.archlinux.jp/index.php/Logitech_Marble_Mouse
+実際の設定はこのあたりを参考にした
