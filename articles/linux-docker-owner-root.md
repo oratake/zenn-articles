@@ -44,20 +44,96 @@ https://docs.docker.com/engine/security/rootless/
 一応、Dockerの公式には乗ってるらしいが、ArchLinuxのユーザリポジトリ(AUR)に方法が載っていたので、
 AURで楽しようと思う。
 
-20/12/09 ぐらいの話なので、AURのページから下記の情報がまだ使えるか確認しながらどうぞ。
-~~https://aur.archlinux.org/packages/docker-rootless/~~
+~~20/12/09 ぐらいの話なので、AURのページから下記の情報がまだ使えるか確認しながらどうぞ。
+https://aur.archlinux.org/packages/docker-rootless/~~
 
-21/01/03 上記見れなくなってた。以下で入りそう。なんか最近このあたりゴタゴタしてるので公式とか見たほうがいいかも
-https://aur.archlinux.org/packages/docker-rootless-extras-bin/
+~~21/01/03 上記見れなくなってた。以下で入りそう。なんか最近このあたりゴタゴタしてるので公式とか見たほうがいいかも
+https://aur.archlinux.org/packages/docker-rootless-extras-bin/~~
+
+22/06/01 確認時はこれ
+https://aur.archlinux.org/packages/docker-rootless-extras/
 
 ### docker-rootlessをAURからインストール
 
-追記 21/01/03
 公式を確認すると以下のインストールが推奨されていたので追記
 ```
 $ sudo pacman -S fuse-overlayfs
 ```
 
+上記AURに従ってまず AUR から docker-rootless-extras をいれてやる
+```
+$ yay -S docker-rootless-extras
+```
+
+このメッセージがでる
+
+```
+=== Post installation message from docker-rootless ===
+This is based on https://docs.docker.com/engine/security/rootless/
+To Run the Docker daemon as a non-root user (Rootless mode) for ArchLinux, you need to do the following things:
+
+1. Configure subuid and subgid
+
+Create '/etc/subuid' and '/etc/subgid' with the following:
+
+    testuser:231072:65536
+    # replace 'testuser' with your username.
+
+2. Enable socket-activation for the user service:
+
+    systemctl --user enable --now docker.socket
+
+3. Finally set docker socket environment variable:
+
+    export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
+
+You can also add it to '~/.bashrc' or somewhere alike.
+
+=========
+Optional dependencies for docker-rootless-extras
+    fuse-overlayfs: overlayfs support [installed]
+    slirp4netns: faster network stack
+```
+
+最後にOptional dependenciesと書かれているものは、実はどちらもほぼ必須っぽい。
+dockerがうまく起動しなくて色々みていたら見つけたやつ。
+
+```
+$ sudo pacman -S slirp4netns 
+```
+
+:::details rootlesskitを使ってdocker起動時に出たエラー
+
+`$ systemctl --user status docker` して出たログ
+
+```
+Jun 01 00:31:20 PC名 systemd[428]: docker.service: Main process exited, code=exited, status=1/FAILURE
+Jun 01 00:31:20 PC名 systemd[428]: docker.service: Failed with result 'exit-code'.
+Jun 01 00:31:22 PC名 systemd[428]: docker.service: Scheduled restart job, restart counter is at 3.
+Jun 01 00:31:22 PC名 systemd[428]: Stopped Docker Application Container Engine (Rootless).
+Jun 01 00:31:22 PC名 systemd[428]: docker.service: Start request repeated too quickly.
+Jun 01 00:31:22 PC名 systemd[428]: docker.service: Failed with result 'exit-code'.
+Jun 01 00:31:22 PC名 systemd[428]: Failed to start Docker Application Container Engine (Rootless).
+```
+
+よくわからんので `journalctl -xe` した
+
+```
+Either slirp4netns (>= v0.4.0) or vpnkit needs to be installed
+```
+
+slirp4netns 要るやんけ。
+なにがOptional dependenciesじゃ。
+
+```
+$ sudo pacman -S slirp4netns 
+```
+
+ﾖｼ。
+
+:::
+
+:::details 旧内容
 上記AURに従ってまず AUR から docker-rootless をいれてやる
 
 ```
@@ -93,6 +169,7 @@ and create '/etc/subuid' and '/etc/subgid' with: 'testuser:231072:65536' (for ex
 NTIME_DIR/docker.sock', you can also add it to '~/.bashrc' or somewhere alike
 =========
 ```
+:::
 
 ### カーネルの設定
 
@@ -183,18 +260,18 @@ rootlessなdockerは別なとこを指定してみる
 
 試しにそれぞれのstatusを確認
 
-rootless
+root
 ```
-$ systemctl --user status docker
+$ sudo systemctl status docker
 ● docker.service - Docker Application Container Engine
      Loaded: loaded (/usr/lib/systemd/system/docker.service; disabled; vendor preset: >
      Active: inactive (dead)
 TriggeredBy: ● docker.socket
 ```
 
-root
+rootless
 ```
-$ sudo systemctl status docker
+$ systemctl --user status docker
 ● docker.service - Docker Application Container Engine (Rootless)
      Loaded: loaded (/usr/lib/systemd/user/docker.service; disabled; vendor preset:
      Active: inactive (dead)
