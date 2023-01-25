@@ -278,10 +278,34 @@ $ systemctl --user status docker
        Docs: https://docs.docker.com
 ```
 
-このそれぞれのdocker.serviceに、起動時の設定などをぶちこんでおける
+今回はユーザ向けのdockerのディレクトリを ~/.docker にしてみた
 
-rootless dockerのdocker.service
-こいつのExecStartを変更していく
+~~このそれぞれのdocker.serviceに、起動時の設定などをぶちこんでおける~~
+
+~~rootless dockerのdocker.service
+こいつのExecStartを変更していく~~
+
+更新: 確認したら `/etc/docker/daemon.json` にて設定を入れる必要がありそうだったので、そちらで定義するように変更した。
+参考: 
+https://docs.docker.com/engine/reference/commandline/dockerd/#daemon-configuration-file
+
+```json:daemon.json
+{
+	"data-root": "/home/<username>/.docker/"
+}
+```
+
+- rootful
+`/etc/docker/daemon.json`
+
+- rootless
+`~/.config/docker/daemon.json`
+
+
+:::details 旧手順
+
+rootless dockerのdocker.serviceが以下
+
 ```
 [Unit]
 Description=Docker Application Container Engine (Rootless)
@@ -308,13 +332,14 @@ Type=simple
 WantedBy=default.target
 ```
 
-今回はユーザ向けのdockerのディレクトリを ~/.docker にしてみた
+こいつのExecStartを変更していく
 
 ```
 ExecStart=/usr/bin/dockerd-rootless.sh $DOCKERD_FLAGS --data-root /home/<USERの名前>/.docker
 ```
-
 参考: https://xvideos.hatenablog.com/entry/move_docker_location
+
+:::
 
 ## bindが1024以下の特権ポートを使えない
 
