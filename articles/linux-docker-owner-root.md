@@ -6,8 +6,6 @@ topics: ["Linux","Docker"]
 published: true
 ---
 
-英語読んで書いてあることやっただけ。
-
 # 状況
 
 - ホストマシンがLinuxでDockerを使う場合、rootで実行する必要がある
