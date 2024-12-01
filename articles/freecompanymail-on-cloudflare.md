@@ -7,7 +7,7 @@ published: true
 ---
 
 この記事は「プロもくチャットAdvent Calendar 2024」1/25日目の記事です🎄
-https://qiita.com/advent-calendar/2023/puromoku
+https://qiita.com/advent-calendar/2024/puromoku
 
 # 概要
 
